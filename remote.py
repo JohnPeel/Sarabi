@@ -1,0 +1,3 @@
+
+class Remote(dict):
+  pass

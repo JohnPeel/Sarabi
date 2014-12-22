@@ -1,0 +1,100 @@
+#!/usr/bin/env python2.7
+
+'''Sarabi is a package manager for the Simba project.
+
+'''
+
+from __future__ import print_function
+import os
+import sys
+import argparse
+from gittle import Gittle
+
+from conf import Config
+from misc import get_default_config, get_repo, parse_package_atom
+
+class Sarabi(object):
+  def __init__(self, configfile):
+    self.configfile = configfile
+    self.config = Config(configfile=configfile)
+
+  def __del__(self):
+    self.config.save(self.configfile)
+
+  def info(self, **args):
+    self.config.info()
+
+  def install(self, **args):
+    atom = parse_package_atom(args['package'])
+    #TODO: write this...
+
+  def uninstall(self, **args):
+    atom = parse_package_atom(args['package'])
+    #TODO: write this...
+
+  def update(self, **args):
+    if (not (os.path.exists(self.config['path']))):
+      os.mkdir(self.config['path'])
+
+    for name, url in self.config['remotes'].iteritems():
+      print('Updating remote %s: %s (%s)' % (name, url, get_repo(url)))
+      path = os.path.join(self.config['path'], name)
+      if (not (os.path.exists(path))):
+        Gittle.clone(url, path, bare = True, mkdir = True)
+      else:
+        Gittle(path).fetch_remote(url)
+
+  def upgrade(self, **args):
+    pass
+
+  def remote_list(self, **args):
+    for name, url in self.config['remotes'].iteritems():
+      print("%s: %s" % (name, url))
+
+  def remote_add(self, **args):
+    self.config['remotes'][args['repo_name']] = args['repo']
+
+  def remote_remove(self, **args):
+    del self.config['remotes'][args['repo_name']]
+
+  def remote(self, **args):
+    call = getattr(self, args['remote_action'])
+    call(**args)
+
+  def call(self, **args):
+    call = getattr(self, args['action'])
+    call(**args)
+    
+
+def parse_args(argv, configfile):
+  parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter) 
+  parser.add_argument('--config', default=configfile)
+
+  subparsers = parser.add_subparsers(dest='action')
+
+  parser_info = subparsers.add_parser('info')
+
+  parser_install = subparsers.add_parser('install')
+  parser_install.add_argument('package')
+
+  parser_uninstall = subparsers.add_parser('uninstall')
+  parser_uninstall.add_argument('package')
+
+  parser_update = subparsers.add_parser('update')
+  parser_upgrade = subparsers.add_parser('upgrade')
+  
+  parser_remote = subparsers.add_parser('remote')
+  remote_subparsers = parser_remote.add_subparsers(dest='remote_action')
+  parser_remote_list = remote_subparsers.add_parser('list')
+  parser_remote_add = remote_subparsers.add_parser('add')
+  parser_remote_add.add_argument('repo_name')
+  parser_remote_add.add_argument('repo')
+  parser_remote_remove = remote_subparsers.add_parser('remove')
+  parser_remote_remove.add_argument('repo_name')
+
+  return vars(parser.parse_args(argv))
+
+if (__name__ == '__main__'):
+  args = parse_args(sys.argv[1:], get_default_config(sys.argv[0]))
+  sarabi = Sarabi(args['config'])
+  sarabi.call(**args)
