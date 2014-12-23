@@ -48,4 +48,4 @@ class ConfDict(dict):
       if (config_ext == '.yml'):
         yaml.dump(dict(self), file, default_flow_style=False)
       else:
-        yaml.dump(dict(self), file, indent=0)
+        yaml.dump(dict(self), file, indent=4, separators=(',', ': '))
