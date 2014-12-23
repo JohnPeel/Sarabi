@@ -58,7 +58,7 @@ class Sarabi(object):
     del self.config['remotes'][args['repo_name']]
 
   def remote(self, **args):
-    call = getattr(self, args['remote_action'])
+    call = getattr(self, 'remote_' + args['remote_action'])
     call(**args)
 
   def call(self, **args):
