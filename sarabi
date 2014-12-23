@@ -8,7 +8,7 @@ from __future__ import print_function
 import os
 import sys
 import argparse
-from gittle import Gittle
+import pygit2
 
 from conf import Config
 from misc import get_default_config, get_repo, parse_package_atom
@@ -40,9 +40,13 @@ class Sarabi(object):
       print('Updating remote %s: %s (%s)' % (name, url, get_repo(url)))
       path = os.path.join(self.config['path'], name)
       if (not (os.path.exists(path))):
-        Gittle.clone(get_repo(url), path, bare = True, mkdir = True)
+        repo = pygit2.clone_repository(get_repo(url), path)
       else:
-        Gittle(path).fetch_remote(get_repo(url))
+        repo = pygit2.Repository(pygit2.discover_repository(path))
+        if (repo):
+          repo.remotes[0].fetch()
+          repo.create_reference('refs/remotes/origin/master', 'refs/heads/master', True)
+          repo.checkout_head()
 
   def upgrade(self, **args):
     pass
