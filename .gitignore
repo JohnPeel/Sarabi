@@ -1,6 +1,7 @@
 # sarabi files
 .sarabi_info
 *.yml
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,10 +1,15 @@
 
 import os
-import yaml
+try:
+    import yaml
+    config_ext = '.yml'
+except ImportError:
+    import json as yaml
+    config_ext = '.json'
 
 def get_default_config(program):
   (path, executable) = os.path.split(program)
-  return os.path.abspath(os.path.join(path, os.path.splitext(executable)[0] + '.yml'))
+  return os.path.abspath(os.path.join(path, os.path.splitext(executable)[0] + config_ext))
 
 def get_repo(repo):
   if (repo[:7] == 'github:'):
@@ -32,7 +37,7 @@ def parse_package_atom(package):
       'remote': remote
     }
 
-class YAMLDict(dict):
+class ConfDict(dict):
   def load(self, filename):
     if (os.path.exists(filename)):
       with open(filename, 'r') as file:
@@ -40,4 +45,7 @@ class YAMLDict(dict):
 
   def save(self, filename):
     with open(filename, 'w') as file:
-      yaml.dump(dict(self), file, default_flow_style=False)
+      if (config_ext == '.yml'):
+        yaml.dump(dict(self), file, default_flow_style=False)
+      else:
+        yaml.dump(dict(self), file, indent=0)

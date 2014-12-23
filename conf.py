@@ -1,10 +1,9 @@
 
 from __future__ import print_function
 import os
-import yaml
-from misc import YAMLDict
+from misc import ConfDict
 
-class Config(YAMLDict):
+class Config(ConfDict):
   def __init__(self, **kwds):
     super(Config, self).__init__(**kwds)
 
