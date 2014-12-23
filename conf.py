@@ -13,12 +13,12 @@ class Config(ConfDict):
     self['path'] = '.sarabi_info'
     self['simba_path'] = '' # Current Directory
 
-    if kwds.has_key('configfile'):
+    if ('configfile' in kwds):
       self.load(kwds['configfile'])
 
   def info(self):
     print("Data Path: %s\nSimba Path: %s" % (self['path'], self['simba_path']))
     print("Remotes -")
-    for name, item in self['remotes'].iteritems():
+    for name, item in self['remotes'].items():
       print("  %s: %s" % (name, item))
     print("World: %s" % " ".join(self['world']))

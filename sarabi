@@ -36,7 +36,7 @@ class Sarabi(object):
     if (not (os.path.exists(self.config['path']))):
       os.mkdir(self.config['path'])
 
-    for name, url in self.config['remotes'].iteritems():
+    for name, url in self.config['remotes'].items():
       print('Updating remote %s: %s (%s)' % (name, url, get_repo(url)))
       path = os.path.join(self.config['path'], name)
       if (not (os.path.exists(path))):
