@@ -6,4 +6,4 @@ Package manager for Simba
 Notes
 =====
 
-```pip install gittle pyyaml
+```pip install gittle pyyaml```
