@@ -16,6 +16,7 @@ def get_repo(repo):
     return 'https://github.com/%s.git' % repo[7:]
   if (repo[:4] == 'git:'):
     return repo[4:]
+  return repo
 
 def parse_package_atom(package):
   remote = None
