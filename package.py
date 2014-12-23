@@ -6,8 +6,7 @@ class FileList(dict):
   pass # Could be pulled from git, or get files and create? hmmm...
 
 class PackageFile(ConfDict):
-  def __init__(self, name, description, repo, branch = 'master', commit = 'HEAD', files = {}, depends = []):
-    self.parent_repo = parent_repo
+  def __init__(self, name = '', description = '', repo = '', branch = 'master', commit = 'HEAD', files = {}, depends = []):
     self['name'] = name
     self['description'] = description
     self['repo'] = repo
@@ -17,17 +16,19 @@ class PackageFile(ConfDict):
     self['depends'] = depends
 
 class Package(dict):
-  def __init__(self, name, catagory = None, version = None, remote = None, data = None):
+  def __init__(self, name, catagory, version, remote):
     self['name'] = name
     self['catagory'] = catagory
     self['version'] = version
     self['remote'] = remote
-    self.data = data
+
+  def get_atom(self, with_version=False):
+    return '%s/%s%s::%s' % (self['catagory'], self['name'], '-' + self['version'] if with_version else '', self['remote']) 
 
   def valid_atom(self, atom):
     def compare(item):
       return (not atom[item]) or (self[item] == atom[item])
-    return compare('name') and compare('catagory') and compare('version') and compare(remote)
+    return compare('name') and compare('catagory') and compare('version') and compare('remote')
 
   def update(self):
     # Update repo, create new filelist, compare and update
