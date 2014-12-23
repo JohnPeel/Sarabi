@@ -19,6 +19,11 @@ class Sarabi(object):
     self.configfile = configfile
     self.config = Config(configfile=configfile)
     self.remotes = []
+
+    for path in ['.', 'remotes', 'packages', 'info']:
+      path = os.path.join(self.config['path'], path)
+      if (not os.path.exists(path)):
+        os.mkdir(path)
     self.update_remotes()
 
   def __del__(self):
@@ -44,9 +49,6 @@ class Sarabi(object):
     #TODO: write this...
 
   def update(self, **args):
-    if (not (os.path.exists(self.config['path']))):
-      os.mkdir(self.config['path'])
-
     for remote in self.remotes:
       print('Updating remote %s: %s (%s)' % (remote['name'], remote['url'], remote['path']))
       remote.update()
