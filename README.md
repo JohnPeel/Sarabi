@@ -3,7 +3,7 @@ Sarabi
 
 Package manager for Simba
 
-Notes
-=====
-
-```pip install gittle pyyaml```
+Required Packages
+-----------------
+ * pygit2
+ * pyyaml (optional, json backup)
