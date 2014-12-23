@@ -1,5 +1,6 @@
 
 import os
+import yaml
 
 def get_default_config(program):
   (path, executable) = os.path.split(program)
@@ -30,3 +31,13 @@ def parse_package_atom(package):
       'version': version,
       'remote': remote
     }
+
+class YAMLDict(dict):
+  def load(self, filename):
+    if (os.path.exists(filename)):
+      with open(filename, 'r') as file:
+        self = yaml.load(file)
+
+  def save(self, filename):
+    with open(filename, 'w') as file:
+      yaml.dump(dict(self), file, default_flow_style=False)

@@ -1,11 +1,11 @@
 
 from __future__ import print_function
-import yaml
+from misc import YAMLDict
 
 class FileList(dict):
   pass # Could be pulled from git, or get files and create? hmmm...
 
-class PackageFile(dict):
+class PackageFile(YAMLDict):
   def __init__(self, name, description, repo, branch = 'master', commit = 'HEAD', files = {}, depends = []):
     self.parent_repo = parent_repo
     self['name'] = name
@@ -15,9 +15,6 @@ class PackageFile(dict):
     self['commit'] = commit
     self['files'] = files
     self['depends'] = depends
-
-  def load(self, fileio):
-    self = yaml.load(fileio)
 
 class Package(dict):
   def __init__(self, name, catagory = None, version = None, remote = None, data = None):

@@ -40,9 +40,9 @@ class Sarabi(object):
       print('Updating remote %s: %s (%s)' % (name, url, get_repo(url)))
       path = os.path.join(self.config['path'], name)
       if (not (os.path.exists(path))):
-        Gittle.clone(url, path, bare = True, mkdir = True)
+        Gittle.clone(get_repo(url), path, bare = True, mkdir = True)
       else:
-        Gittle(path).fetch_remote(url)
+        Gittle(path).fetch_remote(get_repo(url))
 
   def upgrade(self, **args):
     pass
