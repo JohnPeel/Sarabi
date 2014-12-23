@@ -1,19 +1,18 @@
 
 from __future__ import print_function
-from misc import ConfDict
+from misc import YAMLFile
 
 class FileList(dict):
   pass # Could be pulled from git, or get files and create? hmmm...
 
-class PackageFile(ConfDict):
-  def __init__(self, name = '', description = '', repo = '', branch = 'master', commit = 'HEAD', files = {}, depends = []):
-    self['name'] = name
-    self['description'] = description
-    self['repo'] = repo
-    self['branch'] = branch
-    self['commit'] = commit
-    self['files'] = files
-    self['depends'] = depends
+class PackageFile(YAMLFile):
+  def set_defaults(self):
+    self['name'] = ''
+    self['description'] = ''
+    self['repo'] = ''
+    self['branch'] = 'master'
+    self['files'] = []
+    self['depends'] = []
 
 class Package(dict):
   def __init__(self, name, catagory, version, remote):

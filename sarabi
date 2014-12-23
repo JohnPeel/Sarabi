@@ -17,7 +17,7 @@ from misc import get_default_config, get_repo, parse_package_atom
 class Sarabi(object):
   def __init__(self, configfile):
     self.configfile = configfile
-    self.config = Config(configfile=configfile)
+    self.config = Config(configfile)
     self.remotes = []
 
     for path in ['.', 'remotes', 'packages', 'info']:
@@ -25,9 +25,6 @@ class Sarabi(object):
       if (not os.path.exists(path)):
         os.mkdir(path)
     self.update_remotes()
-
-  def __del__(self):
-    self.config.save(self.configfile)
 
   def update_remotes(self):
     for name, url in self.config['remotes'].items():

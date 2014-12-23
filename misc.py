@@ -38,13 +38,31 @@ def parse_package_atom(package):
       'remote': remote
     }
 
-class ConfDict(dict):
+class YAMLFile(dict):
+  def __init__(self, filename = None, **kwds):
+    super(YAMLFile, self).__init__(**kwds)
+
+    self.set_defaults()
+
+    if filename and os.path.exists(filename):
+      self.load(filename)
+  
+  def __del__(self):
+    if hasattr(self, 'filename') and self.filename:
+      self.save()
+
+  def set_defaults(self):
+    pass
+
   def load(self, filename):
     if (os.path.exists(filename)):
+      self.filename = filename
       with open(filename, 'r') as file:
-        self = yaml.load(file)
+        self.update(yaml.load(file))
 
-  def save(self, filename):
+  def save(self, filename = None):
+    if (not filename):
+      filename = self.filename
     with open(filename, 'w') as file:
       if (config_ext == '.yml'):
         yaml.dump(dict(self), file, default_flow_style=False)

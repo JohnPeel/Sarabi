@@ -3,11 +3,11 @@ from __future__ import print_function
 import os
 import pygit2
 from package import Package
-from misc import get_repo, ConfDict
+from misc import get_repo, YAMLFile
 
-class PackageList(ConfDict):
-  def __init__(self, sha):
-    self['checksum'] = sha
+class PackageList(YAMLFile):
+  def set_defaults(self):
+    self['checksum'] = ''
 
 class Remote(dict):
   def __init__(self, name, url, path):
@@ -21,7 +21,7 @@ class Remote(dict):
     else:
       self.repo = pygit2.Repository(pygit2.discover_repository(self['path']))
 
-    self.packages = PackageList(None)
+    self.packages = PackageList()
     self.packages.load(os.path.join(self.repo.path, 'sarabi_packages'))
     self.update_packages()
 
@@ -30,9 +30,9 @@ class Remote(dict):
 
   def update_packages(self):
     if (self.packages['checksum'] != str(self.repo.head.target)):
-      # FIXME: Generate the package list
+      
       self.packages['checksum'] = str(self.repo.head.target)
-      self.packages.save(os.path.join(self.repo.path, 'sarabi_packages.cache'))
+      self.packages.save(os.path.join(self.repo.path, 'sarabi_packages'))
 
   def update(self):
     if (self.repo):
