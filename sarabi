@@ -9,10 +9,12 @@ import os
 import sys
 import argparse
 import pygit2
+import shutil
 
 from conf import Config
 from remote import Remote
-from misc import get_default_config, get_repo, parse_package_atom
+from misc import get_default_config, get_repo, parse_package_atom, EPackageNotFound, EAmbiguousAtom
+from strings import *
 
 class Sarabi(object):
   def __init__(self, configfile):
@@ -26,33 +28,70 @@ class Sarabi(object):
 
   def update_remotes(self):
     for name, url in self.config['remotes'].items():
-      self.remotes.append(Remote(name, url, os.path.join(self.config['path'], 'remotes', name)))
+      self.remotes.append(Remote(self, name, url, os.path.join(self.config['path'], 'remotes', name)))
+
+  def find_package(self, atom):
+    valid_packages = []  
+    for remote in self.remotes:
+      if (atom['remote'] == remote['name']) or (atom['remote'] == None):
+        valid_packages.extend(remote.get_packages(atom))
+    vp_len = len(valid_packages)
+    if vp_len < 1:
+      raise EPackageNotFound()
+    elif vp_len > 1:
+      raise EAmbiguousAtom(valid_packages)
+    else:
+      return valid_packages[0]
 
   def info(self, **args):
     self.config.info()
 
   def install(self, **args):
-    atom = parse_package_atom(args['package'])
-    for remote in self.remotes:
-      if (remote.has_package(args['package'])):
-        pass # TODO: Write this... get_package().install(), append atom to world...
-    else:
-      print('Package not found.')
+    try:
+      package = self.find_package(parse_package_atom(args['package']))
+      if (package.install()):
+        self.config['world'].append(args['package'] + ' -> ' + package.get_atom(True, True))
+        print(PACKAGE_INSTALL_SUCCESSFUL % package.get_atom(False, False))
+        return True
+      else:
+        print(PACKAGE_INSTALL_FAILED % package.get_atom(False, False))
+    except EAmbiguousAtom as e:
+      print(e.message)
+    except EPackageNotFound:
+      print(PACKAGE_NOT_FOUND % args['package'])
 
   def uninstall(self, **args):
-    atom = parse_package_atom(args['package'])
-    #TODO: write this...
+    try:
+      atom = parse_package_atom(args['package'])
+      for package in self.config['world']:
+        (_, current_atom) = package.split(' -> ')
+        current_package = self.find_package(parse_package_atom(current_atom))
+        if (current_package) and (current_package.valid_atom(atom)):
+          if current_package.uninstall():
+            self.config['world'].remove(package)
+            print(PACKAGE_UNINSTALL_SUCCESSFUL % current_atom)
+            return True
+          else:
+            print(PACKAGE_UNINSTALL_FAILED % current_atom)
+    except EAmbiguousAtom as e:
+      print(e.message)
+    except EPackageNotFound:
+      print(PACKAGE_NOT_FOUND % args['package'])
 
   def update(self, **args):
     if (not (os.path.exists(self.config['path']))):
       os.mkdir(self.config['path'])
 
     for remote in self.remotes:
-      print('Updating remote %s: %s (%s)' % (remote['name'], remote['url'], remote['path']))
+      print(REMOTE_UPDATE % (remote['name'], remote['url'], remote['path']))
       remote.update()
 
   def upgrade(self, **args):
-    pass # TODO: find atoms in world, update...
+    for package in self.config['world']:
+      (_, atom) = package.split(' -> ')
+      package = self.find_package(parse_package_atom(atom))
+      if (package):
+        return package.update()
 
   def remote_list(self, **args):
     for name, url in self.config['remotes'].iteritems():
@@ -62,7 +101,11 @@ class Sarabi(object):
     self.config['remotes'][args['repo_name']] = args['repo']
 
   def remote_remove(self, **args):
+    for remote in self.remotes:
+      if (remote['name'] == args['repo_name']):
+        shutil.rmtree(remote['path'])
     del self.config['remotes'][args['repo_name']]
+    self.update_remotes()
 
   def remote(self, **args):
     call = getattr(self, 'remote_' + args['remote_action'])
