@@ -2,12 +2,7 @@
 import os
 import shutil
 import stat
-try:
-    import yaml
-    config_ext = '.yml'
-except ImportError:
-    import json as yaml
-    config_ext = '.json'
+import yaml
 
 from strings import *
 
@@ -113,7 +108,4 @@ class ConfDict(dict):
     if (not filename):
       filename = self.filename
     with open(filename, 'w') as file:
-      if (config_ext == '.yml'):
-        yaml.dump(dict(self), file, default_flow_style=False)
-      else:
-        yaml.dump(dict(self), file, indent=4, separators=(',', ': '))
+      yaml.dump(dict(self), file, default_flow_style=False)
