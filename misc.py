@@ -24,7 +24,7 @@ class EAmbiguousAtom(Exception):
 
 def get_default_config(program):
   (path, executable) = os.path.split(program)
-  return os.path.abspath(os.path.join(path, os.path.splitext(executable)[0] + config_ext))
+  return os.path.abspath(os.path.join(path, os.path.splitext(executable)[0] + '.yml'))
 
 def get_repo(repo):
   if (repo[:7] == 'github:'):
