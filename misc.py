@@ -88,12 +88,30 @@ def copytree(src, dst, symlinks = False, ignore = None):
       shutil.copy2(s, d)    
 
 class ConfDict(dict):
+  def __init__(self, filename = None, **kwds):
+    super(ConfDict, self).__init__(**kwds)
+
+    self.set_defaults()
+
+    if filename and os.path.exists(filename):
+      self.load(filename)
+  
+  def __del__(self):
+    if hasattr(self, 'filename') and self.filename:
+      self.save()
+
+  def set_defaults(self):
+    pass
+  
   def load(self, filename):
     if (os.path.exists(filename)):
+      self.filename = filename
       with open(filename, 'r') as file:
         self.update(yaml.load(file))
 
-  def save(self, filename):
+  def save(self, filename = None):
+    if (not filename):
+      filename = self.filename
     with open(filename, 'w') as file:
       if (config_ext == '.yml'):
         yaml.dump(dict(self), file, default_flow_style=False)

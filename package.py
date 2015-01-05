@@ -10,12 +10,12 @@ class FileList(ConfDict):
     self['files'] = files
 
 class PackageFile(ConfDict):
-  def __init__(self, name = '', description = '', uri  = '', files = {}, depends = []):
-    self['name'] = name
-    self['description'] = description
-    self['uri'] = uri
-    self['files'] = files
-    self['depends'] = depends
+  def set_defaults(self):
+    self['name'] = ''
+    self['description'] = ''
+    self['uri'] = ''
+    self['files'] = {}
+    self['depends'] = []
 
 class Package(dict):
   def __init__(self, parent, name, catagory, version, remote, package_file):
@@ -25,8 +25,7 @@ class Package(dict):
     self['version'] = version
     self['remote'] = remote
     
-    self.package_file = PackageFile()
-    self.package_file.load(package_file)
+    self.package_file = PackageFile(package_file)
   
   def info(self):
     return [

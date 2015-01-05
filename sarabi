@@ -19,12 +19,14 @@ from strings import *
 class Sarabi(object):
   def __init__(self, configfile):
     self.configfile = configfile
-    self.config = Config(configfile=configfile)
+    self.config = Config(configfile)
     self.remotes = []
-    self.update_remotes()
 
-  def __del__(self):
-    self.config.save(self.configfile)
+    for path in ['.', 'remotes', 'packages', 'info']:
+      path = os.path.join(self.config['path'], path)
+      if (not os.path.exists(path)):
+        os.mkdir(path)
+    self.update_remotes()
 
   def update_remotes(self):
     for name, url in self.config['remotes'].items():
@@ -79,9 +81,6 @@ class Sarabi(object):
       print(PACKAGE_NOT_FOUND % args['package'])
 
   def update(self, **args):
-    if (not (os.path.exists(self.config['path']))):
-      os.mkdir(self.config['path'])
-
     for remote in self.remotes:
       print(REMOTE_UPDATE % (remote['name'], remote['url'], remote['path']))
       remote.update()
